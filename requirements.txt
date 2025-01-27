@@ -1,0 +1,8 @@
+transformers>=4.0.0
+sentence-transformers>=2.0.0
+torch>=1.11.0
+faiss-cpu
+requests
+grpcio
+protobuf
+raftos

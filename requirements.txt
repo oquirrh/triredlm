@@ -5,4 +5,4 @@ faiss-cpu
 requests
 grpcio
 protobuf
-raftos
+# raftos

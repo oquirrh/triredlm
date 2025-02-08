@@ -1,6 +1,7 @@
 import os
 import faiss
 import numpy as np
+from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModel
 import torch
 
@@ -85,3 +86,24 @@ class FaissIndexer:
         # Optionally, store the new texts and filenames for future reference (for search)
         self.texts.extend(new_texts)
         self.filenames.extend(new_filenames)
+
+    def most_similar_strings(self, string_dict):
+        if len(string_dict) < 2:
+            raise ValueError("At least two strings are required to compute similarity.")
+        keys = list(string_dict.keys())
+        texts = list(string_dict.values())
+        embeddings = self.__create_embeddings(texts)
+        embeddings = self.__normalize_embeddings(embeddings)
+        similarity_matrix = np.dot(embeddings, embeddings.T)
+        best_pair = None
+        best_score = -1
+        for i in range(len(keys)):
+            for j in range(i + 1, len(keys)):  # Avoid duplicate comparisons
+                if similarity_matrix[i][j] > best_score:
+                    best_score = similarity_matrix[i][j]
+                    best_pair = {
+                        keys[i]: texts[i],
+                        keys[j]: texts[j]
+                    }
+        return best_pair, best_score
+

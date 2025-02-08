@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12raft/service.proto\x12\x04raft\"_\n\x0fRequestVoteArgs\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x13\n\x0b\x63\x61ndidateId\x18\x02 \x01(\x05\x12\x14\n\x0clastLogIndex\x18\x03 \x01(\x05\x12\x13\n\x0blastLogTerm\x18\x04 \x01(\x05\"5\n\x10RequestVoteReply\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x13\n\x0bvoteGranted\x18\x02 \x01(\x08\"\x95\x01\n\x11\x41ppendEntriesArgs\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x10\n\x08leaderId\x18\x02 \x01(\x05\x12\x14\n\x0cprevLogIndex\x18\x03 \x01(\x05\x12\x13\n\x0bprevLogTerm\x18\x04 \x01(\x05\x12\x1f\n\x07\x65ntries\x18\x05 \x03(\x0b\x32\x0e.raft.LogEntry\x12\x14\n\x0cleaderCommit\x18\x06 \x01(\x05\"3\n\x12\x41ppendEntriesReply\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x0f\n\x07success\x18\x02 \x01(\x08\"8\n\x08LogEntry\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04term\x18\x02 \x01(\x05\x12\x0f\n\x07\x63ommand\x18\x03 \x01(\t2\x88\x01\n\x04Raft\x12<\n\x0bRequestVote\x12\x15.raft.RequestVoteArgs\x1a\x16.raft.RequestVoteReply\x12\x42\n\rAppendEntries\x12\x17.raft.AppendEntriesArgs\x1a\x18.raft.AppendEntriesReplyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12raft/service.proto\x12\x04raft\"_\n\x0fRequestVoteArgs\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x13\n\x0b\x63\x61ndidateId\x18\x02 \x01(\x05\x12\x14\n\x0clastLogIndex\x18\x03 \x01(\x05\x12\x13\n\x0blastLogTerm\x18\x04 \x01(\x05\"5\n\x10RequestVoteReply\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x13\n\x0bvoteGranted\x18\x02 \x01(\x08\"D\n\x11\x41ppendEntriesArgs\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x10\n\x08leaderId\x18\x02 \x01(\x05\x12\x0f\n\x07\x65ntries\x18\x03 \x03(\t\"3\n\x12\x41ppendEntriesReply\x12\x0c\n\x04term\x18\x01 \x01(\x05\x12\x0f\n\x07success\x18\x02 \x01(\x08\"4\n\x0fResponseMessage\x12\x10\n\x08senderId\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1e\n\x0bResponseAck\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\xc2\x01\n\x04Raft\x12<\n\x0bRequestVote\x12\x15.raft.RequestVoteArgs\x1a\x16.raft.RequestVoteReply\x12\x42\n\rAppendEntries\x12\x17.raft.AppendEntriesArgs\x1a\x18.raft.AppendEntriesReply\x12\x38\n\x0cSendResponse\x12\x15.raft.ResponseMessage\x1a\x11.raft.ResponseAckb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,12 +35,14 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_REQUESTVOTEARGS']._serialized_end=123
   _globals['_REQUESTVOTEREPLY']._serialized_start=125
   _globals['_REQUESTVOTEREPLY']._serialized_end=178
-  _globals['_APPENDENTRIESARGS']._serialized_start=181
-  _globals['_APPENDENTRIESARGS']._serialized_end=330
-  _globals['_APPENDENTRIESREPLY']._serialized_start=332
-  _globals['_APPENDENTRIESREPLY']._serialized_end=383
-  _globals['_LOGENTRY']._serialized_start=385
-  _globals['_LOGENTRY']._serialized_end=441
-  _globals['_RAFT']._serialized_start=444
-  _globals['_RAFT']._serialized_end=580
+  _globals['_APPENDENTRIESARGS']._serialized_start=180
+  _globals['_APPENDENTRIESARGS']._serialized_end=248
+  _globals['_APPENDENTRIESREPLY']._serialized_start=250
+  _globals['_APPENDENTRIESREPLY']._serialized_end=301
+  _globals['_RESPONSEMESSAGE']._serialized_start=303
+  _globals['_RESPONSEMESSAGE']._serialized_end=355
+  _globals['_RESPONSEACK']._serialized_start=357
+  _globals['_RESPONSEACK']._serialized_end=387
+  _globals['_RAFT']._serialized_start=390
+  _globals['_RAFT']._serialized_end=584
 # @@protoc_insertion_point(module_scope)

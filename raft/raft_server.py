@@ -4,7 +4,8 @@ from raft.service_pb2_grpc import RaftServicer, RaftStub, add_RaftServicer_to_se
 import random
 import time
 from concurrent import futures
-from threading import Lock, Thread
+from threading import Lock, Thread, Condition
+
 
 class RaftNode(RaftServicer):
     def __init__(self, node_id, peers):
@@ -18,6 +19,8 @@ class RaftNode(RaftServicer):
         self.leader_id = None
         self.election_timeout = random.uniform(10, 50)  # Random timeout in seconds
         self.reset_election_timer()
+        self.messages = []
+        self.message_condition = Condition()
 
     def reset_election_timer(self):
         """Restart the election timeout"""
@@ -108,6 +111,13 @@ class RaftNode(RaftServicer):
         print(f"Node {self.node_id} received heartbeat from leader {request.leaderId}")
         return response
 
+    def SendResponse(self, request, context):
+        """Handles incoming responses from other nodes."""
+        with self.lock:
+            print(f"Node {self.node_id} received response from {request.senderId}: {request.message}")
+            self.received_messages.append((request.senderId, request.message))
+        return service_pb2.ResponseAck(success=True)
+
     def election_timer(self):
         """Runs a loop to check for election timeouts"""
         while True:
@@ -138,6 +148,19 @@ def start_server(node_id, port, peers, raft_node):
 
     # Return immediately, allowing other tasks to continue
     return
+
+
+def send_response(self, peer, message):
+    """Send a response message to another peer."""
+    try:
+        with grpc.insecure_channel(peer) as channel:
+            stub = RaftStub(channel)
+            response = service_pb2.ResponseMessage(senderId=self.node_id, message=message)
+            ack = stub.SendResponse(response)
+            if ack.success:
+                print(f"Node {self.node_id} successfully sent response to {peer}")
+    except Exception as e:
+        print(f"Error sending response to {peer}: {e}")
 
 # if __name__ == "__main__":
 #     import sys

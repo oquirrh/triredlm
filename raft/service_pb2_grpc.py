@@ -26,8 +26,7 @@ if _version_not_supported:
 
 
 class RaftStub(object):
-    """Service definition for Raft leader election
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -45,22 +44,30 @@ class RaftStub(object):
                 request_serializer=raft_dot_service__pb2.AppendEntriesArgs.SerializeToString,
                 response_deserializer=raft_dot_service__pb2.AppendEntriesReply.FromString,
                 _registered_method=True)
+        self.SendResponse = channel.unary_unary(
+                '/raft.Raft/SendResponse',
+                request_serializer=raft_dot_service__pb2.ResponseMessage.SerializeToString,
+                response_deserializer=raft_dot_service__pb2.ResponseAck.FromString,
+                _registered_method=True)
 
 
 class RaftServicer(object):
-    """Service definition for Raft leader election
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def RequestVote(self, request, context):
-        """RequestVote RPC for leader election
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def AppendEntries(self, request, context):
-        """AppendEntries RPC for log replication (heartbeat included)
-        """
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendResponse(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -78,6 +85,11 @@ def add_RaftServicer_to_server(servicer, server):
                     request_deserializer=raft_dot_service__pb2.AppendEntriesArgs.FromString,
                     response_serializer=raft_dot_service__pb2.AppendEntriesReply.SerializeToString,
             ),
+            'SendResponse': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendResponse,
+                    request_deserializer=raft_dot_service__pb2.ResponseMessage.FromString,
+                    response_serializer=raft_dot_service__pb2.ResponseAck.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'raft.Raft', rpc_method_handlers)
@@ -87,8 +99,7 @@ def add_RaftServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class Raft(object):
-    """Service definition for Raft leader election
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def RequestVote(request,
@@ -134,6 +145,33 @@ class Raft(object):
             '/raft.Raft/AppendEntries',
             raft_dot_service__pb2.AppendEntriesArgs.SerializeToString,
             raft_dot_service__pb2.AppendEntriesReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendResponse(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/raft.Raft/SendResponse',
+            raft_dot_service__pb2.ResponseMessage.SerializeToString,
+            raft_dot_service__pb2.ResponseAck.FromString,
             options,
             channel_credentials,
             insecure,

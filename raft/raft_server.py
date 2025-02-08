@@ -1,12 +1,13 @@
 import grpc
-import service_pb2
-import service_pb2_grpc
+from raft import service_pb2
+from raft.service_pb2_grpc import RaftServicer, RaftStub, add_RaftServicer_to_server
 import random
 import time
 from concurrent import futures
 from threading import Lock, Thread
 
-class RaftNode(service_pb2_grpc.RaftServicer):
+
+class RaftNode(RaftServicer):
     def __init__(self, node_id, peers):
         self.node_id = node_id
         self.peers = peers  # List of other Raft nodes
@@ -16,7 +17,8 @@ class RaftNode(service_pb2_grpc.RaftServicer):
         self.votes_received = 0
         self.lock = Lock()
         self.leader_id = None
-        self.election_timeout = random.uniform(3, 5)  # Random timeout in seconds
+        self.election_timeout = random.uniform(10, 20)  # Random election timeout in seconds
+        self.heartbeat_interval = 2  # Leader sends heartbeats every 2 seconds
         self.reset_election_timer()
 
     def reset_election_timer(self):
@@ -53,7 +55,7 @@ class RaftNode(service_pb2_grpc.RaftServicer):
         """Send a vote request to another peer"""
         try:
             with grpc.insecure_channel(peer) as channel:
-                stub = service_pb2_grpc.RaftStub(channel)
+                stub = RaftStub(channel)
                 request = service_pb2.RequestVoteArgs(
                     term=self.current_term, candidateId=self.node_id, lastLogIndex=0, lastLogTerm=0
                 )
@@ -69,9 +71,38 @@ class RaftNode(service_pb2_grpc.RaftServicer):
 
     def become_leader(self):
         """Convert to leader if election is won"""
-        self.state = "leader"
-        self.leader_id = self.node_id
-        print(f"Node {self.node_id} is now the LEADER for term {self.current_term}")
+        with self.lock:
+            self.state = "leader"
+            self.leader_id = self.node_id
+            print(f"Node {self.node_id} is now the LEADER for term {self.current_term}")
+
+        # Start sending heartbeats
+        Thread(target=self.send_heartbeats, daemon=True).start()
+
+    def send_heartbeats(self):
+        """Send heartbeats to followers periodically"""
+        while self.state == "leader":
+            time.sleep(self.heartbeat_interval)
+            for peer in self.peers:
+                Thread(target=self.send_heartbeat_to_peer, args=(peer,), daemon=True).start()
+
+    def send_heartbeat_to_peer(self, peer):
+        """Send a single heartbeat to a peer"""
+        try:
+            with grpc.insecure_channel(peer) as channel:
+                stub = RaftStub(channel)
+                request = service_pb2.AppendEntriesArgs(term=self.current_term, leaderId=self.node_id)
+                response = stub.AppendEntries(request)
+
+                with self.lock:
+                    if response.term > self.current_term:
+                        print(f"Node {self.node_id} found a higher term {response.term}, stepping down.")
+                        self.current_term = response.term
+                        self.state = "follower"
+                        self.leader_id = None
+                        self.reset_election_timer()
+        except Exception as e:
+            print(f"Error sending heartbeat to {peer}: {e}")
 
     def RequestVote(self, request, context):
         """Handles incoming vote requests"""
@@ -116,24 +147,25 @@ class RaftNode(service_pb2_grpc.RaftServicer):
                 self.start_election()
                 self.reset_election_timer()
 
-def start_server(node_id, port, peers):
-    """Start a Raft node server"""
+
+def start_server(node_id, port, peers, raft_node):
+    """Start a Raft node server in the background"""
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    raft_node = RaftNode(node_id, peers)
-    service_pb2_grpc.add_RaftServicer_to_server(raft_node, server)
+    add_RaftServicer_to_server(raft_node, server)
     server.add_insecure_port(f"[::]:{port}")
 
     # Start election timer in a separate thread
     Thread(target=raft_node.election_timer, daemon=True).start()
 
     print(f"Node {node_id} started on port {port} with peers {peers}")
-    server.start()
-    server.wait_for_termination()
 
-if __name__ == "__main__":
-    import sys
-    node_id = int(sys.argv[1])  # Node ID from command-line arguments
-    port = int(sys.argv[2])  # Port to run the server
-    peers = sys.argv[3:]  # List of peer addresses (e.g., ["localhost:50052", "localhost:50053"])
+    # Start the server in a background thread
+    def server_thread():
+        server.start()
+        server.wait_for_termination()
 
-    start_server(node_id, port, peers)
+    # Run the gRPC server in a separate thread to allow the main function to return
+    Thread(target=server_thread, daemon=True).start()
+
+    # Return immediately, allowing other tasks to continue
+    return

@@ -2,12 +2,12 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
 class LlmInterface:
     def __init__(self, model):
+        load_dotenv()
         self.model = model
+        #self.OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+        self.OPENROUTER_API_KEY = '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'
 
     def query(self, query, context):
         """
@@ -22,7 +22,7 @@ class LlmInterface:
         url = "https://openrouter.ai/api/v1/chat/completions"
 
         headers = {
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Authorization": f"Bearer {self.OPENROUTER_API_KEY}",
             "Content-Type": "application/json"
         }
 

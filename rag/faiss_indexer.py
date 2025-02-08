@@ -4,6 +4,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModel
 import torch
+import pdfplumber
 
 
 class FaissIndexer:
@@ -15,21 +16,33 @@ class FaissIndexer:
         self.model.eval()
         self.doc_path = doc_path
         self.batch_size = 8
-        self.default_dim = 784
+        self.default_dim = 768
         self.raft_service = raft_service
+
+    import torch
+    import numpy as np
 
     def __create_embeddings(self, texts=None):
         embeddings = []
+        device = torch.device(
+            "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
         if not texts:
             texts = self.texts
+
+        self.model.to(device)
+
         for i in range(0, len(texts), self.batch_size):
             batch = texts[i:i + self.batch_size]
             inputs = self.tokenizer(batch, return_tensors='pt', padding=True, truncation=True, max_length=512)
 
+            # Move input tensors to the same device as the model
+            inputs = {key: val.to(device) for key, val in inputs.items()}
+
             with torch.no_grad():
                 outputs = self.model(**inputs)
-                # Use the mean of the last hidden state (embedding)
-                embeddings_batch = outputs.last_hidden_state.mean(dim=1).numpy()
+                # Move to CPU before converting to NumPy
+                embeddings_batch = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
 
             embeddings.extend(embeddings_batch)
 
@@ -41,11 +54,24 @@ class FaissIndexer:
 
         for filename in os.listdir(self.doc_path):
             file_path = os.path.join(self.doc_path, filename)
-            if os.path.isfile(file_path):
+
+            # Check if it's a PDF file
+            if os.path.isfile(file_path) and filename.lower().endswith('.pdf'):
+                with pdfplumber.open(file_path) as pdf:
+                    text = ""
+                    for page in pdf.pages:
+                        text += page.extract_text()  # Extract text from each page
+
+                    # Append the extracted text and filename
+                    self.texts.append(text)
+                    self.filenames.append(filename)
+
+            # If you want to process other file types (like txt), you can add:
+            elif os.path.isfile(file_path) and filename.lower().endswith('.txt'):
                 with open(file_path, 'r', encoding='utf-8') as f:
                     text = f.read()
                     self.texts.append(text)
-                    self.filenames.append(filename)  # Store filenames for reference
+                    self.filenames.append(filename)
 
     def __normalize_embeddings(self, embeddings):
         norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
@@ -53,7 +79,9 @@ class FaissIndexer:
 
     def create_faiss_index(self):
         self.__doc_loader()
-        embeddings = self.__create_embeddings()
+        # embeddings = self.__create_embeddings()
+        embeddings = self.__create_embeddings(["Hello world!"])
+
         embeddings = self.__normalize_embeddings(embeddings)
         self.index = faiss.IndexFlatIP(self.default_dim)
         self.index.add(embeddings)

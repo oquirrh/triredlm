@@ -6,7 +6,6 @@ import time
 from concurrent import futures
 from threading import Lock, Thread
 
-
 class RaftNode(RaftServicer):
     def __init__(self, node_id, peers):
         self.node_id = node_id
@@ -17,8 +16,7 @@ class RaftNode(RaftServicer):
         self.votes_received = 0
         self.lock = Lock()
         self.leader_id = None
-        self.election_timeout = random.uniform(10, 20)  # Random election timeout in seconds
-        self.heartbeat_interval = 2  # Leader sends heartbeats every 2 seconds
+        self.election_timeout = random.uniform(10, 50)  # Random timeout in seconds
         self.reset_election_timer()
 
     def reset_election_timer(self):
@@ -71,38 +69,9 @@ class RaftNode(RaftServicer):
 
     def become_leader(self):
         """Convert to leader if election is won"""
-        with self.lock:
-            self.state = "leader"
-            self.leader_id = self.node_id
-            print(f"Node {self.node_id} is now the LEADER for term {self.current_term}")
-
-        # Start sending heartbeats
-        Thread(target=self.send_heartbeats, daemon=True).start()
-
-    def send_heartbeats(self):
-        """Send heartbeats to followers periodically"""
-        while self.state == "leader":
-            time.sleep(self.heartbeat_interval)
-            for peer in self.peers:
-                Thread(target=self.send_heartbeat_to_peer, args=(peer,), daemon=True).start()
-
-    def send_heartbeat_to_peer(self, peer):
-        """Send a single heartbeat to a peer"""
-        try:
-            with grpc.insecure_channel(peer) as channel:
-                stub = RaftStub(channel)
-                request = service_pb2.AppendEntriesArgs(term=self.current_term, leaderId=self.node_id)
-                response = stub.AppendEntries(request)
-
-                with self.lock:
-                    if response.term > self.current_term:
-                        print(f"Node {self.node_id} found a higher term {response.term}, stepping down.")
-                        self.current_term = response.term
-                        self.state = "follower"
-                        self.leader_id = None
-                        self.reset_election_timer()
-        except Exception as e:
-            print(f"Error sending heartbeat to {peer}: {e}")
+        self.state = "leader"
+        self.leader_id = self.node_id
+        print(f"Node {self.node_id} is now the LEADER for term {self.current_term}")
 
     def RequestVote(self, request, context):
         """Handles incoming vote requests"""
@@ -169,3 +138,11 @@ def start_server(node_id, port, peers, raft_node):
 
     # Return immediately, allowing other tasks to continue
     return
+
+# if __name__ == "__main__":
+#     import sys
+#     node_id = int(sys.argv[1])  # Node ID from command-line arguments
+#     port = int(sys.argv[2])  # Port to run the server
+#     peers = sys.argv[3:]  # List of peer addresses (e.g., ["localhost:50052", "localhost:50053"])
+#
+#     start_server(node_id, port, peers)

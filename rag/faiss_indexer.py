@@ -79,8 +79,8 @@ class FaissIndexer:
 
     def create_faiss_index(self):
         self.__doc_loader()
-        # embeddings = self.__create_embeddings()
-        embeddings = self.__create_embeddings(["Hello world!"])
+        embeddings = self.__create_embeddings()
+        #embeddings = self.__create_embeddings(["Hello world!"])
 
         embeddings = self.__normalize_embeddings(embeddings)
         self.index = faiss.IndexFlatIP(self.default_dim)

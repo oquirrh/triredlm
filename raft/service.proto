@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package raft;
+
+// Service definition for Raft leader election
+service Raft {
+  // RequestVote RPC for leader election
+  rpc RequestVote(RequestVoteArgs) returns (RequestVoteReply);
+
+  // AppendEntries RPC for log replication (heartbeat included)
+  rpc AppendEntries(AppendEntriesArgs) returns (AppendEntriesReply);
+}
+
+// RequestVote RPC arguments
+message RequestVoteArgs {
+  int32 term = 1;
+  int32 candidateId = 2;
+  int32 lastLogIndex = 3;
+  int32 lastLogTerm = 4;
+}
+
+// RequestVote RPC reply
+message RequestVoteReply {
+  int32 term = 1;
+  bool voteGranted = 2;
+}
+
+// AppendEntries RPC arguments
+message AppendEntriesArgs {
+  int32 term = 1;
+  int32 leaderId = 2;
+  int32 prevLogIndex = 3;
+  int32 prevLogTerm = 4;
+  repeated LogEntry entries = 5;
+  int32 leaderCommit = 6;
+}
+
+// AppendEntries RPC reply
+message AppendEntriesReply {
+  int32 term = 1;
+  bool success = 2;
+}
+
+// Log entry structure
+message LogEntry {
+  int32 index = 1;
+  int32 term = 2;
+  string command = 3;
+}

@@ -8,3 +8,5 @@ protobuf
 openai
 requests
 python-dotenv
+grpcio
+grpcio-tools

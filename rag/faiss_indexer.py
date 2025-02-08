@@ -7,7 +7,7 @@ import torch
 
 
 class FaissIndexer:
-    def __init__(self, model_name, doc_path):
+    def __init__(self, model_name, doc_path, raft_service):
         self.index = None
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -16,6 +16,7 @@ class FaissIndexer:
         self.doc_path = doc_path
         self.batch_size = 8
         self.default_dim = 784
+        self.raft_service = raft_service
 
     def __create_embeddings(self, texts=None):
         embeddings = []
@@ -88,6 +89,8 @@ class FaissIndexer:
         self.filenames.extend(new_filenames)
 
     def most_similar_strings(self, string_dict):
+        if not self.raft_service.is_leader():
+            return {}
         if len(string_dict) < 2:
             raise ValueError("At least two strings are required to compute similarity.")
         keys = list(string_dict.keys())

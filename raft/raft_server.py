@@ -23,6 +23,9 @@ class RaftNode(service_pb2_grpc.RaftServicer):
         """Restart the election timeout"""
         self.election_deadline = time.time() + self.election_timeout
 
+    def is_leader(self):
+        return self.state == "leader"
+
     def start_election(self):
         """Trigger an election when timeout occurs"""
         with self.lock:

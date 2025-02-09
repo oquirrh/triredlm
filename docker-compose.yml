@@ -2,10 +2,10 @@ version: "3.8"
 services:
   rag1:
     build:
-      context: ./rag
-      dockerfile: Dockerfile.rag
+      context: .
+      dockerfile: rag/Dockerfile.rag
     ports:
-      - "8000:8000"
+      - "8001:8000"
     command:
       - python3
       - rag_pipeline.py
@@ -14,16 +14,17 @@ services:
       - "rag2:8000"
       - "rag3:8000"
       - bert-base-uncased
-      - /path/to/model
+      - ../knowledge/
+      - google/gemini-2.0-pro-exp-02-05:free
     networks:
       - rag_network
 
   rag2:
     build:
-      context: ./rag
-      dockerfile: Dockerfile.rag
+      context: .
+      dockerfile: rag/Dockerfile.rag
     ports:
-      - "8001:8000"
+      - "8002:8000"
     command:
       - python3
       - rag_pipeline.py
@@ -32,16 +33,17 @@ services:
       - "rag1:8000"
       - "rag3:8000"
       - bert-base-uncased
-      - /path/to/model
+      - ../knowledge/
+      - google/gemini-2.0-pro-exp-02-05:free
     networks:
       - rag_network
 
   rag3:
     build:
-      context: ./rag
-      dockerfile: Dockerfile.rag
+      context: .
+      dockerfile: rag/Dockerfile.rag
     ports:
-      - "8002:8000"
+      - "8003:8000"
     command:
       - python3
       - rag_pipeline.py
@@ -50,7 +52,8 @@ services:
       - "rag1:8000"
       - "rag2:8000"
       - bert-base-uncased
-      - /path/to/model
+      - ../knowledge/
+      - google/gemini-2.0-pro-exp-02-05:free
     networks:
       - rag_network
 

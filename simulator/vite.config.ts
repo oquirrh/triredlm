@@ -2,17 +2,19 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from "path"
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-
   },
-  build:{
-    outDir: 'dist'
+  server: {
+    host: '0.0.0.0',  // Allow external access
+    allowedHosts: [
+      'mac.tail12403c.ts.net',  // Your Tailscale domain
+      'localhost',
+      '127.0.0.1'
+    ]
   }
 })

@@ -1,0 +1,69 @@
+version: "3.8"
+services:
+  rag1:
+    build:
+      context: .
+      dockerfile: rag/Dockerfile.rag
+    hostname: rag1
+    ports:
+      - "8001:8000"
+    command:
+      - python3
+      - rag_pipeline.py
+      - "1"
+      - "8000"
+      - "rag2:9000"
+      - "rag3:9000"
+      - bert-base-uncased
+      - ../knowledge/
+      - google/gemini-2.0-pro-exp-02-05:free
+    networks:
+      - rag_network
+
+  rag2:
+    build:
+      context: .
+      dockerfile: rag/Dockerfile.rag
+    hostname: rag2
+    ports:
+      - "8002:8000"
+    command:
+      - python3
+      - rag_pipeline.py
+      - "2"
+      - "8000"
+      - "rag1:9000"
+      - "rag3:9000"
+      - bert-base-uncased
+      - ../knowledge/
+      - google/gemini-2.0-pro-exp-02-05:free
+    depends_on:
+      - rag1
+    networks:
+      - rag_network
+
+  rag3:
+    build:
+      context: .
+      dockerfile: rag/Dockerfile.rag
+    hostname: rag3
+    ports:
+      - "8003:8000"
+    command:
+      - python3
+      - rag_pipeline.py
+      - "3"
+      - "8000"
+      - "rag1:9000"
+      - "rag2:9000"
+      - bert-base-uncased
+      - ../knowledge/
+      - google/gemini-2.0-pro-exp-02-05:free
+    depends_on:
+      - rag2
+    networks:
+      - rag_network
+
+networks:
+  rag_network:
+    driver: bridge

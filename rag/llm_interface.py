@@ -7,7 +7,7 @@ class LlmInterface:
         load_dotenv()
         self.model = model
         #self.OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-        self.OPENROUTER_API_KEY = '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'
+        self.OPENROUTER_API_KEY = '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'
 
     def query(self, query, context):
         """

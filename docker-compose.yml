@@ -1,0 +1,72 @@
+version: "3.8"
+services:
+  rag1:
+    build:
+      context: ./rag
+      dockerfile: Dockerfile.rag
+    ports:
+      - "8000:8000"
+    command:
+      - python3
+      - rag_pipeline.py
+      - "1"
+      - "8000"
+      - "rag2:8000"
+      - "rag3:8000"
+      - bert-base-uncased
+      - /path/to/model
+    networks:
+      - rag_network
+
+  rag2:
+    build:
+      context: ./rag
+      dockerfile: Dockerfile.rag
+    ports:
+      - "8001:8000"
+    command:
+      - python3
+      - rag_pipeline.py
+      - "2"
+      - "8000"
+      - "rag1:8000"
+      - "rag3:8000"
+      - bert-base-uncased
+      - /path/to/model
+    networks:
+      - rag_network
+
+  rag3:
+    build:
+      context: ./rag
+      dockerfile: Dockerfile.rag
+    ports:
+      - "8002:8000"
+    command:
+      - python3
+      - rag_pipeline.py
+      - "3"
+      - "8000"
+      - "rag1:8000"
+      - "rag2:8000"
+      - bert-base-uncased
+      - /path/to/model
+    networks:
+      - rag_network
+
+  frontend:
+    build:
+      context: ./simulator
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rag1
+      - rag2
+      - rag3
+    networks:
+      - rag_network
+
+networks:
+  rag_network:
+    driver: bridge

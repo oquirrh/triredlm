@@ -14,11 +14,13 @@ from typing import List, Optional, Dict
 import threading
 from contextlib import asynccontextmanager
 
+import grpc
+
 from context_fetcher import ContextFetcher
 from faiss_indexer import FaissIndexer
 from llm_interface import LlmInterface
 from raft.raft_server import RaftNode
-from raft.raft_server import start_server
+from raft.raft_server import start_server, send_response
 
 # Configure logging
 logging.basicConfig(
@@ -41,6 +43,7 @@ class NodeConfig(BaseModel):
     embedding_model: str = Field(..., description="Name of the embedding model to use")
     doc_path: str = Field(..., description="Path to the document directory")
     llm_model: str = Field(..., description="Name of the language model to use")
+
 
 class Pipeline:
     def __init__(self, embedding_model_name, doc_path, model, raft):

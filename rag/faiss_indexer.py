@@ -120,7 +120,7 @@ class FaissIndexer:
         if not self.raft_service.is_leader():
             return {}
         if len(string_dict) < 2:
-            raise ValueError("At least two strings are required to compute similarity.")
+           return string_dict, None
         keys = list(string_dict.keys())
         texts = list(string_dict.values())
         embeddings = self.__create_embeddings(texts)

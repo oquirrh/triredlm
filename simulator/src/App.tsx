@@ -112,6 +112,11 @@ const App = () => {
               <CardTitle>SYSTEM STATUS</CardTitle>
             </CardHeader>
            <CardContent>
+            <Card className="bg-slate-800 text-white border-slate-700">
+              <CardContent className={`overflow-y-auto h-48 text-xs ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-900'} `}>
+              The advent of LLMs has revolutionized AI-driven decision-making, yet their deployment in mission-critical environments like space systems demands unparalleled reliability.<p> This paper presents a distributed LLM architecture with majority voting, designed for fault tolerance and robustness in resource-constrained settings.</p><p> By leveraging a triple-redundant system of LLM nodes equipped with RAG and synchronized vector databases, the framework ensures consistent outputs even under node failures.</p><p> A de-centralized voting coordinator employs semantic similarity analysis to resolve discrepancies, while Docker-based containerization enables scalable, isolated deployment.</p> The MVP demonstrates the feasibility of this approach using lightweight models and consensus-driven response aggregation, laying the groundwork for resilient AI systems in space and beyond.
+              </CardContent>
+            </Card>
             <img src="./dragon.png" alt="space-craft" />
            </CardContent>
           </Card>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
-import { AlertCircle, Power, Send, Sun , Moon } from 'lucide-react';
+import { Power, Send, Sun , Moon } from 'lucide-react';
 
 const App = () => {
   const [nodes, setNodes] = useState([
@@ -47,10 +47,10 @@ const App = () => {
 
   const toggleNode = async (nodeId: number) => {
     const node = nodes.find(n => n.id === nodeId);
-    const action = node.status === 'running' ? 'stop' : 'start';
+    const action = node?.status === 'running' ? 'stop' : 'start';
     
     try {
-      await fetch(`http://localhost:${node.port}/${action}`, {
+      await fetch(`http://localhost:${node?.port}/${action}`, {
         method: 'POST'
       });
       await refreshNodeStatus();
@@ -82,7 +82,8 @@ const App = () => {
       const data = await response.json();
       setResponse(data.response);
     } catch (error) {
-      setResponse('Error: ' + error.message);
+      const errorMessage = (error as { message?: string })?.message;
+      setResponse(errorMessage ? 'Error: ' + errorMessage : 'An unknown error occurred.');
     } finally {
       setLoading(false);
     }

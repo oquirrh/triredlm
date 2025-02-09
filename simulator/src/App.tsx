@@ -150,7 +150,7 @@ const App = () => {
         </div>
         
         {response && (
-          <Card className="mt-4">
+          <Card className="mt-4 h-48 overflow-y-auto">
             <CardHeader>
               <CardTitle>Response</CardTitle>
             </CardHeader>

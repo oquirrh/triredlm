@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
-import { AlertCircle, Power, Send, SunMoonIcon } from 'lucide-react';
+import { AlertCircle, Power, Send, Sun , Moon } from 'lucide-react';
 
 const App = () => {
   const [nodes, setNodes] = useState([
@@ -88,83 +88,109 @@ const App = () => {
     }
   };
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
 
 
   return (
-    <div className={isDarkMode ? 'dark' : 'light'}>
-      <div className="p-4 max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">RAG System Control Panel</h1>
-        
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          {nodes.map(node => (
-            <Card key={node.id}>
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>Node {node.id}</span>
-               
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm">
-                  <p>Port: {node.port}</p>
-                  <p>Status: {node.status}</p>
-                  {node.isLeader && (
-                    <p className="text-green-500 font-bold">Leader Node</p>
-                  )}
-                  {node.status !== 'running' && (
-                    <div className="flex items-center text-red-500 mt-2">
-                      <AlertCircle className="w-4 h-4 mr-1" />
-                      Node is offline
-                    </div>
-                  )}
-                </div>
-                <Button
-                    variant={node.status === 'running' ? 'default' : 'destructive'}
-                    size="sm"
-                    onClick={() => toggleNode(node.id)}
-                  >
-                    <Power className="w-2 h-4 mr-1" />
-                    {node.status === 'running' ? 'Running' : 'Stopped'}
-                  </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        
-        <div className="flex gap-4 mt-8">
-          <Input
-            type="text"
-            placeholder="Enter your query..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1"
-          />
-          
-          <Button onClick={sendQuery} disabled={loading}>
-            <Send className="w-4 h-4 mr-2" />
-            {loading ? 'Sending...' : 'Send Query'}
+    <div className={`min-h-screen ${isDarkMode ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}`}>
+    <div className="p-8 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">TRI RED LM AGENT INFERENCE CONRTOL PANEL</h1>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={toggleTheme}>
+            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
         </div>
-        
-        {response && (
-          <Card className="mt-4 h-48 overflow-y-auto">
+      </div>
+
+      <div className="grid grid-cols-2 gap-8">
+        <div className="space-y-6">
+          {/* System Status Panel */}
+          <Card className="bg-slate-800 text-white border-slate-700">
             <CardHeader>
-              <CardTitle>Response</CardTitle>
+              <CardTitle>SYSTEM STATUS</CardTitle>
+            </CardHeader>
+           <CardContent>
+            <img src="./dragon.png" alt="space-craft" />
+           </CardContent>
+          </Card>
+
+
+        </div>
+
+        {/* Command Center */}
+        <div className="space-y-6">
+                    {/* Node Grid */}
+                    <div className="grid grid-cols-3 gap-4">
+            {nodes.map(node => (
+              <Card key={node.id} className="bg-slate-800 text-white border-slate-700">
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 ${
+                      node.status === 'running' ? 'bg-green-500/20' : 'bg-red-500/20'
+                    }`}>
+                      <Power className={`w-6 h-6 ${
+                        node.status === 'running' ? 'text-green-500' : 'text-red-500'
+                      }`} />
+                    </div>
+                    {node.isLeader && (
+                    <p className="text-green-500 font-bold">Leader Node</p>
+                  )}
+                    <h3 className="font-bold mb-2">NODE {node.id}</h3>
+                    <p className="text-sm text-slate-400">Port: {node.port}</p>
+                    <Button
+                      variant={node.status === 'running' ? 'outline' : 'destructive'}
+                      size="sm"
+                      className="mt-4 text-primary"
+                      onClick={() => toggleNode(node.id)}
+                    >
+                      {node.status === 'running' ? 'ONLINE' : 'OFFLINE'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Card className="bg-slate-800 text-white border-slate-700">
+            <CardHeader>
+              <CardTitle>COMMAND CENTER</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="whitespace-pre-wrap">{response}</p>
+              <div className="space-y-4">
+                <Input
+                  type="text"
+                  placeholder="Enter command sequence..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  onClick={sendQuery} 
+                  disabled={loading}
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  {loading ? 'PROCESSING...' : 'EXECUTE COMMAND'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
-        )}
-        
-        <Button onClick={toggleTheme} className="mt-4">
-          <SunMoonIcon></SunMoonIcon>
-        </Button>
+
+          <Card className="bg-slate-800 text-white border-slate-700 h-128">
+            <CardHeader>
+              <CardTitle>SYSTEM OUTPUT</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-sm text-green-400 overflow-y-auto max-h-96">
+                {response || '> Awaiting command input...'}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
+  </div>
   );
 };
 

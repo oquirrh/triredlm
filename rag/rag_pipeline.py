@@ -20,7 +20,7 @@ from context_fetcher import ContextFetcher
 from faiss_indexer import FaissIndexer
 from llm_interface import LlmInterface
 from raft.raft_server import RaftNode
-from raft.raft_server import start_server, send_response
+from raft.raft_server import start_server
 
 # Configure logging
 logging.basicConfig(
@@ -62,19 +62,19 @@ class Pipeline:
     def query(self, query):
         if not self.is_running:
             raise Exception("Pipeline is not running")
-            
+
         if not self.raft.is_leader():
             leader = self.raft.is_leader()
             if leader:
                 raise Exception(f"Not the leader. Forward request to {leader}")
             raise Exception("No leader available")
-            
+
         context = self.context_engine.retrieve(query=query)
         return self.llm.query(query, context)
-    
+
     def stop(self):
         self.is_running = False
-        
+
     def start(self):
         self.is_running = True
 
@@ -121,28 +121,28 @@ app.add_middleware(
 pipeline = None
 node_config = None
 
-@app.post("/query", response_model=QueryResponse, 
+@app.post("/query", response_model=QueryResponse,
          description="Process a query using the RAG pipeline")
 async def handle_query(request: QueryRequest):
     try:
         if not pipeline:
             logger.error("Pipeline not initialized")
             raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, 
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized"
             )
-        
+
         if not pipeline.is_running:
             logger.error("Pipeline is not running")
             raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, 
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service is not running"
             )
-        
+
         logger.info(f"Processing query: {request.query}")
         response = pipeline.query(request.query)
         return QueryResponse(response=response, status="success")
-        
+
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -150,7 +150,7 @@ async def handle_query(request: QueryRequest):
             detail=str(e)
         )
 
-@app.post("/start", 
+@app.post("/start",
          description="Start the RAG pipeline service")
 async def start_node():
     try:
@@ -160,11 +160,11 @@ async def start_node():
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized"
             )
-            
+
         pipeline.start()
         logger.info("Node started successfully")
         return {"status": "success", "message": "Node started"}
-        
+
     except Exception as e:
         logger.error(f"Error starting node: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -172,7 +172,7 @@ async def start_node():
             detail=str(e)
         )
 
-@app.post("/stop", 
+@app.post("/stop",
          description="Stop the RAG pipeline service")
 async def stop_node():
     try:
@@ -182,11 +182,11 @@ async def stop_node():
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized"
             )
-            
+
         pipeline.stop()
         logger.info("Node stopped successfully")
         return {"status": "success", "message": "Node stopped"}
-        
+
     except Exception as e:
         logger.error(f"Error stopping node: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -203,7 +203,7 @@ async def get_status():
                 "status": "not_initialized",
                 "message": "Service not initialized"
             }
-            
+
         status_info = {
             "status": "running" if pipeline.is_running else "stopped",
             "is_leader": pipeline.raft.is_leader(),
@@ -211,9 +211,9 @@ async def get_status():
             "node_id": node_config.node_id if node_config else None,
             "embedding_model": node_config.embedding_model if node_config else None
         }
-        
+
         return status_info
-        
+
     except Exception as e:
         logger.error(f"Error getting status: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -233,10 +233,10 @@ def start_raft_server(node_config: NodeConfig):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex(('0.0.0.0', node_config.port))
         sock.close()
-        
+
         if result == 0:
             raise Exception(f"Port {node_config.port} is already in use")
-            
+
         logger.info(f"Starting RAFT server with node_id={node_config.node_id}")
         raft_node = RaftNode(node_config.node_id, node_config.peers)
         raft_thread = threading.Thread(
@@ -257,10 +257,10 @@ def run_server(host: str, port: int):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex((host, port))
         sock.close()
-        
+
         if result == 0:
             raise Exception(f"Port {port} is already in use")
-            
+
         logger.info(f"Starting FastAPI server on {host}:{port}")
         uvicorn.run(
             app,
@@ -279,7 +279,7 @@ if __name__ == '__main__':
             logger.error("Insufficient arguments provided")
             print("Usage: python rag_pipeline.py <node_id> <port> <peer1> <peer2> <embedding_model> <doc_path> <llm_model>")
             sys.exit(1)
-            
+
         node_config = NodeConfig(
             node_id=int(sys.argv[1]),
             port=int(sys.argv[2]),
@@ -288,15 +288,15 @@ if __name__ == '__main__':
             doc_path=sys.argv[6],
             llm_model=sys.argv[7]
         )
-        
+
         logger.info(f"Initializing node with config: {node_config.dict()}")
-        
+
         # Clean up ports before starting
         cleanup_ports([node_config.port])
-        
+
         # Start RAFT in a separate thread
         raft_node = start_raft_server(node_config)
-        
+
         # Initialize pipeline
         pipeline = Pipeline(
             node_config.embedding_model,
@@ -304,10 +304,10 @@ if __name__ == '__main__':
             node_config.llm_model,
             raft_node
         )
-        
+
         # Run FastAPI server
         run_server("0.0.0.0", node_config.port)
-        
+
     except Exception as e:
         logger.error(f"Failed to start service: {str(e)}", exc_info=True)
         # Cleanup on error

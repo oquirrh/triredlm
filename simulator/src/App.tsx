@@ -26,7 +26,7 @@ const App = () => {
     const updatedNodes = await Promise.all(
       nodes.map(async node => {
         try {
-          const response = await fetch(`https://128.110.96.162:${node.port}/status`);
+          const response = await fetch(`/api/status/${node.port}`);
           const data = await response.json();
           return {
             ...node,
@@ -48,9 +48,14 @@ const App = () => {
   const toggleNode = async (nodeId: number) => {
     const node = nodes.find(n => n.id === nodeId);
     const action = node?.status === 'running' ? 'stop' : 'start';
+
+    if (!node) {
+      console.error(`Node with id ${nodeId} not found.`);
+      return; // Or handle the error appropriately
+    }
     
     try {
-      await fetch(`https://128.110.96.162:${node?.port}/${action}`, {
+      await fetch(`/api/toggle/${node.port}/${action}`, {
         method: 'POST'
       });
       await refreshNodeStatus();
@@ -61,7 +66,7 @@ const App = () => {
 
   const sendQuery = async () => {
     if (!query.trim()) return;
-    
+
     setLoading(true);
     try {
       // Find the leader node
@@ -70,15 +75,15 @@ const App = () => {
         setResponse('No leader node available');
         return;
       }
-      
-      const response = await fetch(`https://128.110.96.162:${leaderNode.port}/query`, {
+
+      const response = await fetch(`/api/query/${leaderNode.port}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ query })
       });
-      
+
       const data = await response.json();
       setResponse(data.response);
     } catch (error) {

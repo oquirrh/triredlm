@@ -6,9 +6,9 @@ import { Power, Send, Sun , Moon } from 'lucide-react';
 
 const App = () => {
   const [nodes, setNodes] = useState([
-    { id: 1, port: 50051, status: 'unknown', isLeader: false },
-    { id: 2, port: 50052, status: 'unknown', isLeader: false },
-    { id: 3, port: 50053, status: 'unknown', isLeader: false }
+    { id: 1, port: 8001, status: 'unknown', isLeader: false },
+    { id: 2, port: 8002, status: 'unknown', isLeader: false },
+    { id: 3, port: 8003, status: 'unknown', isLeader: false }
   ]);
   
   const [query, setQuery] = useState('');
@@ -26,7 +26,7 @@ const App = () => {
     const updatedNodes = await Promise.all(
       nodes.map(async node => {
         try {
-          const response = await fetch(`http://localhost:${node.port}/status`);
+          const response = await fetch(`http://128.110.96.162:${node.port}/status`);
           const data = await response.json();
           return {
             ...node,
@@ -50,7 +50,7 @@ const App = () => {
     const action = node?.status === 'running' ? 'stop' : 'start';
     
     try {
-      await fetch(`http://localhost:${node?.port}/${action}`, {
+      await fetch(`http://128.110.96.162:${node?.port}/${action}`, {
         method: 'POST'
       });
       await refreshNodeStatus();
@@ -71,7 +71,7 @@ const App = () => {
         return;
       }
       
-      const response = await fetch(`http://localhost:${leaderNode.port}/query`, {
+      const response = await fetch(`http://128.110.96.162:${leaderNode.port}/query`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

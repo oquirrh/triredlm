@@ -26,7 +26,7 @@ const App = () => {
     const updatedNodes = await Promise.all(
       nodes.map(async node => {
         try {
-          const response = await fetch(`http://128.110.96.162:${node.port}/status`);
+          const response = await fetch(`https://128.110.96.162:${node.port}/status`);
           const data = await response.json();
           return {
             ...node,
@@ -50,7 +50,7 @@ const App = () => {
     const action = node?.status === 'running' ? 'stop' : 'start';
     
     try {
-      await fetch(`http://128.110.96.162:${node?.port}/${action}`, {
+      await fetch(`https://128.110.96.162:${node?.port}/${action}`, {
         method: 'POST'
       });
       await refreshNodeStatus();
@@ -71,7 +71,7 @@ const App = () => {
         return;
       }
       
-      const response = await fetch(`http://128.110.96.162:${leaderNode.port}/query`, {
+      const response = await fetch(`https://128.110.96.162:${leaderNode.port}/query`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

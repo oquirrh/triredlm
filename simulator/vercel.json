@@ -4,16 +4,16 @@
       { "source": "/api/status/8002", "destination": "https://128.110.96.162:8002/status" },
       { "source": "/api/status/8003", "destination": "https://128.110.96.162:8003/status" },
   
-      { "source": "/api/toggle/8001/start", "destination": "https://128.110.96.162:8001/start", "methods": ["POST"] },
-      { "source": "/api/toggle/8001/stop", "destination": "https://128.110.96.162:8001/stop", "methods": ["POST"] },
-      { "source": "/api/toggle/8002/start", "destination": "https://128.110.96.162:8002/start", "methods": ["POST"] },
-      { "source": "/api/toggle/8002/stop", "destination": "https://128.110.96.162:8002/stop", "methods": ["POST"] },
-      { "source": "/api/toggle/8003/start", "destination": "https://128.110.96.162:8003/start", "methods": ["POST"] },
-      { "source": "/api/toggle/8003/stop", "destination": "https://128.110.96.162:8003/stop", "methods": ["POST"] },
+      { "source": "/api/toggle/8001/start", "destination": "https://128.110.96.162:8001/start" },
+      { "source": "/api/toggle/8001/stop", "destination": "https://128.110.96.162:8001/stop" },
+      { "source": "/api/toggle/8002/start", "destination": "https://128.110.96.162:8002/start"},
+      { "source": "/api/toggle/8002/stop", "destination": "https://128.110.96.162:8002/stop"},
+      { "source": "/api/toggle/8003/start", "destination": "https://128.110.96.162:8003/start"},
+      { "source": "/api/toggle/8003/stop", "destination": "https://128.110.96.162:8003/stop"},
   
-      { "source": "/api/query/8001", "destination": "https://128.110.96.162:8001/query", "methods": ["POST"] },
-      { "source": "/api/query/8002", "destination": "https://128.110.96.162:8002/query", "methods": ["POST"] },
-      { "source": "/api/query/8003", "destination": "https://128.110.96.162:8003/query", "methods": ["POST"] }
+      { "source": "/api/query/8001", "destination": "https://128.110.96.162:8001/query"},
+      { "source": "/api/query/8002", "destination": "https://128.110.96.162:8002/query"},
+      { "source": "/api/query/8003", "destination": "https://128.110.96.162:8003/query"}
     ]
   }
   

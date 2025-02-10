@@ -9,6 +9,7 @@ services:
       - "8001:8000"
     command:
       - python3
+      - "-u"
       - rag_pipeline.py
       - "1"
       - "8000"
@@ -17,8 +18,8 @@ services:
       - bert-base-uncased
       - ../knowledge/
       - google/gemini-2.0-pro-exp-02-05:free
-    networks:
-      - rag_network
+#    networks:
+#      - rag_network
 
   rag2:
     build:
@@ -29,6 +30,7 @@ services:
       - "8002:8000"
     command:
       - python3
+      - "-u"
       - rag_pipeline.py
       - "2"
       - "8000"
@@ -39,8 +41,8 @@ services:
       - google/gemini-2.0-pro-exp-02-05:free
     depends_on:
       - rag1
-    networks:
-      - rag_network
+#    networks:
+#      - rag_network
 
   rag3:
     build:
@@ -51,6 +53,7 @@ services:
       - "8003:8000"
     command:
       - python3
+      - "-u"
       - rag_pipeline.py
       - "3"
       - "8000"
@@ -61,9 +64,10 @@ services:
       - google/gemini-2.0-pro-exp-02-05:free
     depends_on:
       - rag2
-    networks:
-      - rag_network
+#    networks:
+#      - rag_network
 
-networks:
-  rag_network:
-    driver: bridge
+# why is this needed
+#networks:
+#  rag_network:
+#    driver: bridge

@@ -15,6 +15,7 @@ const App = () => {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [showPopup, setShowPopup] = useState(true);
 
   useEffect(() => {
     // Poll node status every 5 seconds
@@ -100,6 +101,18 @@ const App = () => {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}`}>
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 text-center text-black">
+            <h2 className="text-lg font-bold mb-4">Service Temporarily Paused</h2>
+            <p className="text-sm mb-4">
+              Due to the depletion of our LLM credits and the inability to host our backend services, we have temporarily paused this service. If you would like a demo, feel free to connect with us on Discord in the Lab Lab AI Astronauts Hackathon channel.
+            </p>
+            <p className="text-sm mb-4">We regret the inconvenience. Here is a link to our <a href="https://drive.google.com/file/d/1xp8IZ5-6ayWygRQluIj3mrYSahgPUnBP/view?usp=sharing" className="text-blue-600 underline">White Paper</a>.</p>
+            <Button onClick={() => setShowPopup(false)} className="bg-blue-600 hover:bg-blue-700 text-white">Close</Button>
+          </div>
+        </div>
+      )}
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">TRI RED LM AGENT INFERENCE CONRTOL PANEL</h1>
